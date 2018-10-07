@@ -1,9 +1,6 @@
 FROM centos:centos7
 
 # make sure that the only yum repository used is the one in artifactory
-RUN     rm -f /etc/yum.repos.d/*
-COPY    artifactory.repo /etc/yum.repos.d/
-
 RUN    dbus-uuidgen > /var/lib/dbus/machine-id
 
 # install the packages from artifactory
