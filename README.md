@@ -11,27 +11,23 @@ To build:
 sudo docker build -t docker-jsystem-runner .
 
 To run:
-docker run -it --rm --net=host \
-  -e DISPLAY=$DISPLAY \
-  --privileged=true \
-  --volume /etc/localtime:/etc/localtime:ro \
-  --volume <Local machine log directory>:<Jsystem Runner Folder>/log:rw \
-  --volume <Jsystem Project Folder Full Path>:/usr/local/share/<Jsystem Project Folder>:rw \
-  -e USE_SCREEN="0" \
-  -e RUN_SCRIPT="./run" \
-  --name docker-jsystem-runner \
-  docker-jsystem-runner
-
+ def DOCKER_IMAGE="docker-jsystem-runner"
+ def JSYSTEM_FOLDER_ON_DOCKER = "/usr/local/share/jsystem/runner"
+ docker.image(DOCKER_IMAGE).inside("--volume /etc/localtime:/etc/localtime:ro \
+                      --volume /home/jenkins/:/home/jenkins/:rw \
+                      --volume ${WORKSPACE}/${AUTOMATION_DIR}/logs:${JSYSTEM_FOLDER_ON_DOCKER}/log:rw \
+                      --privileged --net=host") {
+                          ...
+                      }
 
 Mount instruction:
-  Local machine log directory - Full path of local machine to which the jsystem logs would be written.
-  Jsystem Runner Folder - Full path of the jsystem folder.
-  Jsystem Project Folder - jsystem project directory.
-  Jsystem Project Folder Full Path - Full path of jsystem project directory.
+  AUTOMATION_DIR - Local directory on the jenkins slave that will contain the jsystem project code(Testing and infra).
+  JSYSTEM_FOLDER_ON_DOCKER - Location of the Jsystem runner inside the Docker.
+  
 
 FilesToReplace:
   All files in this folder would replace the Jsystem files to allow easy change to the Run and Jsystem.properties.
-  jsystem.properties - Minimal jsystem.properties.
+  jsystem.properties - Minimal jsystem.properties. You can easly add Listeners to report.class.
   run - Calls Runbase
   runBase - updated to send all the required arguments to runScenario.sh
-  runScenario.sh
+  runScenario.sh - runs the Jsystem headless.
